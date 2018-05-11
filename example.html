@@ -3,12 +3,15 @@
 <title>Websocket example</title>
 <script>
   var socket = new WebSocket( "ws://" + document.domain + ':' + location.port, "example-protocol" );
+  var g_TimerId = null;
   function update(msg) { document.getElementById("num").innerHTML = msg; }
-  socket.onopen = function() { console.log("socket open"); update("open"); }
-  socket.onclose = function() { console.log("socket close"); update("closed"); }
+  socket.onopen = function() { console.log("socket open"); update("[open]"); }
+  socket.onclose = function() { console.log("socket close"); update("[closed]"); }
   socket.onmessage = function(msg) { console.log("socket message: " + msg.data); update(msg.data); }
+  function timerCallback() { socket.send("boo"); }
 </script>
-<body>
+<body onload='g_TimerId=setInterval(timerCallback, 1000);'>
+Latest message from the web socket:
 <p id="num"></p>
 </body>
 </html>
