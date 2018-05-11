@@ -16,7 +16,7 @@ static int callback_http( struct lws *wsi, enum lws_callback_reasons reason, voi
 	return 0;
 }
 
-#define EXAMPLE_RX_BUFFER_BYTES (10)
+#define EXAMPLE_RX_BUFFER_BYTES (20)
 struct payload
 {
 	unsigned char data[LWS_SEND_BUFFER_PRE_PADDING + EXAMPLE_RX_BUFFER_BYTES + LWS_SEND_BUFFER_POST_PADDING];
@@ -34,7 +34,18 @@ static int callback_example( struct lws *wsi, enum lws_callback_reasons reason, 
 			break;
 
 		case LWS_CALLBACK_SERVER_WRITEABLE:
-			lws_write( wsi, &received_payload.data[LWS_SEND_BUFFER_PRE_PADDING], received_payload.len, LWS_WRITE_TEXT );
+			received_payload.data[LWS_SEND_BUFFER_PRE_PADDING] = 0;
+			{
+				FILE * pFile;
+				pFile = fopen("/proc/uptime","r");
+				if (pFile != NULL)
+				{
+					fgets(&received_payload.data[LWS_SEND_BUFFER_PRE_PADDING], EXAMPLE_RX_BUFFER_BYTES, pFile);
+					fclose(pFile);
+				}
+			}
+			len = strlen(&received_payload.data[LWS_SEND_BUFFER_PRE_PADDING]);
+			lws_write( wsi, &received_payload.data[LWS_SEND_BUFFER_PRE_PADDING], len, LWS_WRITE_TEXT );
 			break;
 
 		default:
